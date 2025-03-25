@@ -1,8 +1,9 @@
 <?php
 
-
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\TokenVerificationMiddleware;
 
@@ -22,6 +23,9 @@ Route::post('/verify-otp', [UserController::class, 'VerifyOTP']);
 //Posts Routes
 Route::post('/public-posts', [PostController::class, 'PublicPosts']);
 
+// Tags Routes
+Route::post('/tags', [TagController::class, 'GetTags']);
+
 
 Route::middleware(TokenVerificationMiddleware::class)->group(function () {
     //All User Routes
@@ -36,4 +40,16 @@ Route::middleware(TokenVerificationMiddleware::class)->group(function () {
     Route::post('/post-by-id', [PostController::class, 'PostById']);
     Route::post('/update-post', [PostController::class, 'PostUpdate']);
     Route::post('/delete-post/{id}', [PostController::class, 'PostDelete']);
+
+
+    //All tags routes
+    Route::post('/create-tag', [TagController::class, 'CreateTag']);
+
+
+
+    // All Comment Routes
+    Route::post('/posts/{postId}/comments', [CommentController::class, 'CommentCreate']);
+    Route::get('/posts/{postId}/comments', [CommentController::class, 'list']);
+    Route::put('/comments/{commentId}', [CommentController::class, 'update']);
+    Route::delete('/comments/{commentId}', [CommentController::class, 'delete']);
 });

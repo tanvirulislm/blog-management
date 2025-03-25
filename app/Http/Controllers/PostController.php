@@ -16,7 +16,11 @@ class PostController extends Controller
             'content' => 'required',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'visibility' => 'required|in:public,private',
+            'tags' => 'array',
+            'tags.*' => 'exists:tags,id',
         ]);
+
+        $imagePath = null;
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -25,7 +29,7 @@ class PostController extends Controller
             $imagePath = 'uploads/' . $imageName;
         }
 
-        Post::create([
+        $post = Post::create([
             'user_id' => $user_id,
             'title' => $request->input('title'),
             'content' => $request->input('content'),
@@ -33,9 +37,14 @@ class PostController extends Controller
             'visibility' => $request->input('visibility'),
         ]);
 
+        if ($request->has('tags')) {
+            $post->tags()->attach($request->input('tags'));
+        }
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Post created successfully'
+            'message' => 'Post created successfully',
+            'post' => $post->load('tags')
         ]);
     }
 
@@ -46,6 +55,7 @@ class PostController extends Controller
         $posts = Post::where('user_id', $user_id)
             ->orWhere('visibility', 'public')
             ->orderBy('created_at', 'desc')
+            ->with('tags')
             ->get();
 
         $posts->transform(function ($post) {
@@ -102,6 +112,14 @@ class PostController extends Controller
             'visibility' => $request->input('visibility', $post->visibility),
         ]);
 
+
+        $tags = $request->input('tags');
+
+        if ($tags) {
+
+            $post->tags()->sync($tags);
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'Post updated successfully',
@@ -148,7 +166,8 @@ class PostController extends Controller
     {
         $posts = Post::where('visibility', 'public')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->with('tags');
 
         return response()->json($posts);
     }
