@@ -1,66 +1,119 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Blog Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Assignment:** Blog Management System (Mini Project)
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+-   **User Authentication & Profile**
+    -   Users can register and login to access the full functionality. (JWT/Session)
+    -   Each user will have a unique username.
+    -   Users can upload a profile picture; if not uploaded, a default image will be used.
+    -   Guests can only view public posts but cannot comment or post.
+-   **Post Management**
+    -   Users can create, edit, and delete their posts.
+    -   Posts can contain images along with text content.
+    -   Posts will be sorted in descending order (latest first).
+    -   Users can set the visibility of posts:
+        -   Public → Visible to everyone (including guests).
+        -   Private → Visible only to the post owner.
+-   **Tags & Search System**
+    -   Posts can be tagged for better categorization.
+    -   Users can search posts by:
+        -   Title
+        -   Content
+        -   Tags
+        -   Username
+-   **Real-Time Comment System**
+    -   Users can comment on any public post.
+    -   Real-time comments update using Pusher.
+    -   Users can reply to comments (nested comments supported).
+    -   The post owner can delete comments on their posts.
+-   **Like & Unlike System**
+    -   Users can like or unlike posts with a single button.
+    -   The like count updates in real-time using Pusher.
+-   **Bookmark System (Save for Later)**
+    -   Users can bookmark posts to view later.
+-   **Real-Time Notification System**
+    -   Users receive real-time notifications when:
+        -   Someone likes their post.
+        -   Someone comments on their post.
+        -   Someone replies to their comment.
+    -   Vue 3-based Toast Notification system for a smooth user experience.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Database Design
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   **Users Table (users)**
 
-## Learning Laravel
+    -   `id`
+    -   `username` (unique)
+    -   `email` (unique)
+    -   `password`
+    -   `profile_pic` (nullable)
+    -   `created_at`
+    -   `updated_at`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+-   **Posts Table (posts)**
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+    -   `id`
+    -   `user_id` (References users (id)) - cascade on delete
+    -   `title`
+    -   `content` (text)
+    -   `image` (nullable)
+    -   `visibility` (enum[public, private])
+    -   `created_at`
+    -   `updated_at`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   **Tags Table (tags)**
 
-## Laravel Sponsors
+    -   `id`
+    -   `name` (unique)
+    -   `created_at`
+    -   `updated_at`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+-   **Post Tags Table (post_tag)**
 
-### Premium Partners
+    -   `id`
+    -   `post_id` (References posts (id)) - cascade on delete
+    -   `tag_id` (References tags(id)) - cascade on delete
+    -   `created_at`
+    -   `updated_at`
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+-   **Comments Table (comments)**
 
-## Contributing
+    -   `id`
+    -   `user_id` (References users (id)) - cascade on delete
+    -   `post_id` (References posts (id)) - cascade on delete
+    -   `parent_id` (nullable(For nested comments))
+    -   `content` (text)
+    -   `created_at`
+    -   `updated_at`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+-   **Likes Table (likes)**
 
-## Code of Conduct
+    -   `id`
+    -   `user_id` (References users (id)) - cascade on delete
+    -   `post_id` (References posts (id)) – cascade on delete
+    -   `Created_at`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+-   **Bookmarks Table (bookmarks)**
 
-## Security Vulnerabilities
+    -   `id`
+    -   `user_id` (References users (id)) - cascade on delete
+    -   `post_id` (References posts (id)) – cascade on delete
+    -   `created_at`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+-   **Notifications Table (notifications)**
+    -   `id`
+    -   `user_id` (References users (id)) - cascade on delete
+    -   `type` (enum[like, comment, reply])
+    -   `message` (text)
+    -   `created_at`
+    -   `read_at` (nullable)
 
-## License
+## Project Presentation Video
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+[Link to your Google Drive video presentation here]
+
+## Database SQL File
+
+[Database SQL File name, example: database.sql]
