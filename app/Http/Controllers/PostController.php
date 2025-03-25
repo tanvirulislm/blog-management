@@ -129,7 +129,7 @@ class PostController extends Controller
 
     public function PostDelete(Request $request, $id)
     {
-        $user_id = $request->header('id'); // Get user ID from the request header
+        $user_id = $request->header('id');
 
         if (!$user_id) {
             return response()->json([
@@ -138,7 +138,7 @@ class PostController extends Controller
             ], 401);
         }
 
-        // Find the post belonging to the user
+
         $post = Post::where('user_id', $user_id)->where('id', $id)->first();
 
         if (!$post) {
@@ -148,12 +148,12 @@ class PostController extends Controller
             ], 404);
         }
 
-        // Check if the post has an image and delete it
+
         if (!empty($post->image) && file_exists(public_path($post->image))) {
             unlink(public_path($post->image));
         }
 
-        // Delete the post from the database
+
         $post->delete();
 
         return response()->json([
