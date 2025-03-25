@@ -49,7 +49,7 @@ Route::middleware(TokenVerificationMiddleware::class)->group(function () {
 
     // All Comment Routes
     Route::post('/posts/{postId}/comments', [CommentController::class, 'CommentCreate']);
-    Route::get('/posts/{postId}/comments', [CommentController::class, 'list']);
-    Route::put('/comments/{commentId}', [CommentController::class, 'update']);
-    Route::delete('/comments/{commentId}', [CommentController::class, 'delete']);
+    Route::post('/posts/{postId}/comment-list', [CommentController::class, 'CommentList']);
+    Route::post('/comments/{commentId}', [CommentController::class, 'CommentUpdate']);
+    Route::post('/comments/{commentId}', [CommentController::class, 'CommentDelete']);
 });

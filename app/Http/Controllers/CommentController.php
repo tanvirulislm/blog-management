@@ -12,13 +12,22 @@ class CommentController extends Controller
     {
         $user_id = $request->header('id');
 
-        // Validate the incoming request
+        if (!$user_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User ID is required',
+            ], 400);
+        }
+
+
         $request->validate([
             'content' => 'required|string|max:1000',
-            'parent_id' => 'nullable|exists:comments,id', // Parent comment should exist
+            'parent_id' => 'nullable|exists:comments,id',
         ]);
 
-        $post = Post::findOrFail($postId); // Find the post
+        // dd($request->all());
+
+        $post = Post::findOrFail($postId);
 
         // Create a new comment
         $comment = Comment::create([
@@ -29,22 +38,23 @@ class CommentController extends Controller
         ]);
 
         return response()->json([
+
             'status' => 'success',
-            'message' => 'Comment created successfully',
+            'message' => $request->input('parent_id') ? 'Reply created successfully' : 'Comment created successfully',
             'data' => $comment
         ]);
     }
 
-    // List comments for a post
+
     public function CommentList($postId)
     {
         $comments = Comment::with(['user', 'parent'])
             ->where('post_id', $postId)
-            ->whereNull('parent_id') // Only top-level comments
+            ->whereNull('parent_id')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // You may want to load replies (nested comments) here as well
+
         $comments->each(function ($comment) {
             $comment->replies = $comment->where('parent_id', $comment->id)->orderBy('created_at', 'desc')->get();
         });
